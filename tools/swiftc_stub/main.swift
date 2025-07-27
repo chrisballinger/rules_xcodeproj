@@ -117,9 +117,14 @@ func touchDepsFiles(isWMO: Bool, paths: [PathKey: [URL]]) throws {
     guard let outputFileMapPaths = paths[PathKey.outputFileMap], let outputFileMapPath = outputFileMapPaths.first else { return }
 
     if isWMO {
-        let pathNoExtension = String(outputFileMapPath.path.dropLast("-OutputFileMap.json".count))
-        var masterDFilePath = URL(fileURLWithPath: pathNoExtension + "-master.d")
-        try masterDFilePath.touch()
+        // Xcode 26 beta 3 changed the naming convention for .d files of WMO modules to
+        // use a suffix of "-primary" instead of "-master". Support both for now.
+        let basePath = outputFileMapPath.path.dropLast("-OutputFileMap.json".count)
+        for suffix in ["-master", "-primary"] {
+            let dPath = "\(basePath)\(suffix).d"
+            var url = URL(fileURLWithPath: dPath)
+            try url.touch()
+        }
     } else {
         let data = try Data(contentsOf: outputFileMapPath)
         let outputFileMapRaw = try JSONSerialization.jsonObject(

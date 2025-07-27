@@ -51,6 +51,13 @@ rm -f "$TOOL_NAMES_FILE"
 mkdir -p "$FINAL_TOOLCHAIN_DIR"
 cp -RP "$SYMLINK_TOOLCHAIN_DIR/"* "$FINAL_TOOLCHAIN_DIR/"
 
+# Note: We intentionally do NOT create .dia files here
+# Missing .dia files are better than invalid ASCII text ones that cause
+# "Invalid diagnostics signature" errors in Xcode Previews
+# Bazel will create proper binary .dia files when needed
+TOOLCHAIN_BIN_DIR="$FINAL_TOOLCHAIN_DIR/usr/bin"
+mkdir -p "$TOOLCHAIN_BIN_DIR"
+
 # Create a symlink to the toolchain in the user's Library directory
 HOME_TOOLCHAIN_NAME=$(basename "$FINAL_TOOLCHAIN_DIR")
 USER_TOOLCHAIN_PATH="/Users/$(id -un)/Library/Developer/Toolchains/$HOME_TOOLCHAIN_NAME"
